@@ -45,5 +45,7 @@ func main() {
 		if err != nil {
 			fmt.Print(err)
 		}
+	default:
+		fmt.Print(fmt.Sprintf("operation: %s is not supported",args[0]))
 	}
 }

@@ -7,11 +7,17 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+	"path"
 )
 
-func LoadBundle(pathToBundle string) ([]string, error) {
+func LoadBundle(bundleName string) ([]string, error) {
 	filesData := make([]string, 0)
-	f, err := os.Open(fmt.Sprintf("%s.tgz",pathToBundle))
+	bf, err := GetBundleFolder()
+	if err != nil {
+		return nil, err
+	}
+	bandlePath := path.Join(bf, bundleName)
+	f, err := os.Open(fmt.Sprintf("%s.tgz", bandlePath))
 	if err != nil {
 		return nil, err
 	}
@@ -62,4 +68,18 @@ func ReadFile(filePath string) (string, error) {
 		return "", err
 	}
 	return string(data), nil
+}
+func GetBundleFolder() (string, error) {
+	dir, err := os.UserHomeDir()
+	if err != nil {
+		return "", err
+	}
+	bundleFolder := path.Join(dir, "bundles")
+	if _, err := os.Stat(bundleFolder); os.IsNotExist(err) {
+		err := os.Mkdir(bundleFolder, os.ModePerm)
+		if err != nil {
+			return "", err
+		}
+	}
+	return bundleFolder, err
 }
