@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/chen-keinan/oci-client/oci_bundle"
+	"github.com/chen-keinan/oci-runtime/oci_bundle"
 	"io/ioutil"
 	"math/rand"
 	"os"

@@ -1,4 +1,4 @@
-module github.com/chen-keinan/oci-client
+module github.com/chen-keinan/oci-runtime
 
 go 1.16
 

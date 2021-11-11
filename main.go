@@ -3,7 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/chen-keinan/oci-client/oci"
+	"github.com/chen-keinan/oci-runtime/oci"
 	"os"
 )
 
