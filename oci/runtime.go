@@ -28,29 +28,29 @@ func (or OciRuntime) Create(args []string) error {
 }
 
 func (or OciRuntime) Start(arg string) error {
-	if len(arg) != 1 {
+	if len(arg) == 0 {
 		return fmt.Errorf("must provide <container-id> args only")
 	}
-	return ChangeState(StateRunning, []ContainerState{StateStopped, StateCreated}, arg)
+	return ChangeState(StateRunning, []ContainerState{StateStopped,StateCreated}, arg)
 }
 func (or OciRuntime) Kill(arg string) error {
-	if len(arg) != 1 {
+	if len(arg) == 1 {
 		return fmt.Errorf("must provide <container-id> args only")
 	}
 	return ChangeState(StateStopped, []ContainerState{StateRunning}, arg)
 }
 func (or OciRuntime) Delete(arg string) error {
-	if len(arg) != 1 {
+	if len(arg) == 1 {
 		return fmt.Errorf("must provide <container-id> args only")
 	}
 	return ChangeState(StateDeleted, []ContainerState{StateStopped}, arg)
 }
 func (or OciRuntime) State(arg string) error {
-	if len(arg) != 1 {
+	if len(arg) == 1 {
 		return fmt.Errorf("must provide <container-id> args only")
 	}
-	state, err := GetState(arg)
-	if err != nil {
+	state,err:=GetState(arg)
+	if err != nil{
 		return err
 	}
 	fmt.Print(state)

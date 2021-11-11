@@ -63,7 +63,7 @@ func ChangeContainerStates(newStatus ContainerState, oldStatus []ContainerState,
 func DeleteContainer(oldStatus []ContainerState, filePath string) error {
 	state, err := oci_bundle.ReadFile(filePath)
 	if err != nil {
-		return err
+		return fmt.Errorf("no such container with id : %s",filePath)
 	}
 	var st State
 	err = json.Unmarshal([]byte(state), &st)
@@ -91,10 +91,10 @@ func matchOldState(oldStatus []ContainerState, state string, st State) error {
 	}
 	for _, ost := range oldStatus {
 		if st.Status == ost {
-			break
+			return nil
 		}
-		return fmt.Errorf("container state %s cannot be changed from state %s", st.Status, oldStatus)
 	}
+	return fmt.Errorf("container state %s cannot be changed from state %s", st.Status, oldStatus)
 	return nil
 }
 

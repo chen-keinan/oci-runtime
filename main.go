@@ -16,31 +16,31 @@ func main() {
 	}
 	ociTool := oci.NewOciRuntime()
 	switch args[0] {
-	case "Create":
+	case "create":
 		if len(args) < 3 {
 			fmt.Print("missing args")
 			os.Exit(1)
 		}
-		err := ociTool.Create(args[0:2])
+		err := ociTool.Create(args[1:3])
 		if err != nil {
 			fmt.Print(err)
 		}
-	case "Start":
+	case "start":
 		err := ociTool.Start(args[1])
 		if err != nil {
 			fmt.Print(err)
 		}
-	case "Kill":
+	case "kill":
 		err := ociTool.Kill(args[1])
 		if err != nil {
 			fmt.Print(err)
 		}
-	case "Delete":
+	case "delete":
 		err := ociTool.Delete(args[1])
 		if err != nil {
 			fmt.Print(err)
 		}
-	case "State":
+	case "state":
 		err := ociTool.State(args[1])
 		if err != nil {
 			fmt.Print(err)
