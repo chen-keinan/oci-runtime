@@ -11,7 +11,7 @@ import (
 
 func LoadBundle(pathToBundle string) ([]string, error) {
 	filesData := make([]string, 0)
-	f, err := os.Open(pathToBundle)
+	f, err := os.Open(fmt.Sprintf("%s.tgz",pathToBundle))
 	if err != nil {
 		return nil, err
 	}
@@ -50,4 +50,16 @@ func GetReader(reader io.Reader) (io.ReadCloser, error) {
 		return nil, err
 	}
 	return fileReader, nil
+}
+
+func ReadFile(filePath string) (string, error) {
+	f, err := os.Open(filePath)
+	if err != nil {
+		return "", err
+	}
+	data, err := ioutil.ReadAll(f)
+	if err != nil {
+		return "", err
+	}
+	return string(data), nil
 }
