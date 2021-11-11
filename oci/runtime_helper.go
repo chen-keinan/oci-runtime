@@ -5,28 +5,29 @@ import (
 	"errors"
 	"fmt"
 	"github.com/chen-keinan/oci-runtime/oci_bundle"
+	"github.com/olekukonko/tablewriter"
 	"io/ioutil"
 	"math/rand"
 	"os"
 	"path"
 )
 
-func ChangeState(newStatus ContainerState, oldStatus []ContainerState, params ...string) error {
+func changeState(newStatus ContainerState, oldStatus []ContainerState, params ...string) error {
 	if len(params) < 1 {
 		return fmt.Errorf("failed to create container missing params")
 	}
-	cFolder, err := GetContainerFolder()
+	cFolder, err := getContainerFolder()
 	filePath := path.Join(cFolder, params[0])
 	switch newStatus {
 	case StateCreating:
-		return CreatingContainer(params, err, filePath)
+		return creatingContainer(params, err, filePath)
 	case StateRunning, StateStopped, StateCreated:
-		err = ChangeContainerStates(newStatus, oldStatus, filePath)
+		err = changeContainerStates(newStatus, oldStatus, filePath)
 		if err != nil {
 			return err
 		}
 	case StateDeleted:
-		err = DeleteContainer(oldStatus, filePath)
+		err = deleteContainer(oldStatus, filePath)
 		if err != nil {
 			return err
 		}
@@ -34,7 +35,7 @@ func ChangeState(newStatus ContainerState, oldStatus []ContainerState, params ..
 	return nil
 }
 
-func ChangeContainerStates(newStatus ContainerState, oldStatus []ContainerState, filePath string) error {
+func changeContainerStates(newStatus ContainerState, oldStatus []ContainerState, filePath string) error {
 	state, err := oci_bundle.ReadFile(filePath)
 	if err != nil {
 		return err
@@ -60,10 +61,10 @@ func ChangeContainerStates(newStatus ContainerState, oldStatus []ContainerState,
 	return nil
 }
 
-func DeleteContainer(oldStatus []ContainerState, filePath string) error {
+func deleteContainer(oldStatus []ContainerState, filePath string) error {
 	state, err := oci_bundle.ReadFile(filePath)
 	if err != nil {
-		return fmt.Errorf("no such container with id : %s",filePath)
+		return fmt.Errorf("no such container with id : %s", filePath)
 	}
 	var st State
 	err = json.Unmarshal([]byte(state), &st)
@@ -98,7 +99,7 @@ func matchOldState(oldStatus []ContainerState, state string, st State) error {
 	return nil
 }
 
-func CreatingContainer(params []string, err error, filePath string) error {
+func creatingContainer(params []string, err error, filePath string) error {
 	if len(params) < 2 {
 		return fmt.Errorf("failed to create container missing params")
 	}
@@ -125,7 +126,7 @@ func CreatingContainer(params []string, err error, filePath string) error {
 	return nil
 }
 
-func GetContainerFolder() (string, error) {
+func getContainerFolder() (string, error) {
 	dir, err := os.UserHomeDir()
 	if err != nil {
 		return "", err
@@ -140,9 +141,8 @@ func GetContainerFolder() (string, error) {
 	return containerFolder, err
 }
 
-
-func GetState(containerID string) (*State, error) {
-	cf, err := GetContainerFolder()
+func getState(containerID string) (*State, error) {
+	cf, err := getContainerFolder()
 	if err != nil {
 		return nil, err
 	}
@@ -157,4 +157,23 @@ func GetState(containerID string) (*State, error) {
 		return nil, err
 	}
 	return &st, nil
+}
+
+func printView(state *State, itoa string) {
+	data := [][]string{
+		{state.ID, string(state.Status), state.Bundle, itoa, state.Version},
+	}
+	table := tablewriter.NewWriter(os.Stdout)
+	table.SetHeader([]string{"ID", "Status", "Bundle", "PID", "Version"})
+	table.SetAutoWrapText(false)
+	table.SetAutoFormatHeaders(true)
+	table.SetCenterSeparator("")
+	table.SetColumnSeparator("")
+	table.SetRowSeparator("")
+	table.SetHeaderLine(false)
+	table.SetBorder(false)
+	table.SetTablePadding("\t") // pad with tabs
+	table.SetNoWhiteSpace(true)
+	table.AppendBulk(data) // Add Bulk Data
+	table.Render()
 }

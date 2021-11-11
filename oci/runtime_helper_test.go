@@ -8,14 +8,14 @@ import (
 )
 
 func TestChangeState(t *testing.T) {
-	err := ChangeState(StateCreating, []ContainerState{}, "1234", "../oci_bundle/fixture/redis")
+	err := changeState(StateCreating, []ContainerState{}, "1234", "../oci_bundle/fixture/redis")
 	if err != nil {
 		t.Error(err)
 	}
 }
 
 func TestGetContainerFolder(t *testing.T) {
-	got, err := GetContainerFolder()
+	got, err := getContainerFolder()
 	if err != nil {
 		t.Error(err)
 	}
