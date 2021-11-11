@@ -1,6 +1,11 @@
 package oci
 
-import "fmt"
+import (
+	"fmt"
+	"github.com/olekukonko/tablewriter"
+	"os"
+	"strconv"
+)
 
 type Oci interface {
 	State(args string) error
@@ -31,7 +36,7 @@ func (or OciRuntime) Start(arg string) error {
 	if len(arg) == 0 {
 		return fmt.Errorf("must provide <container-id> args only")
 	}
-	return ChangeState(StateRunning, []ContainerState{StateStopped,StateCreated}, arg)
+	return ChangeState(StateRunning, []ContainerState{StateStopped, StateCreated}, arg)
 }
 func (or OciRuntime) Kill(arg string) error {
 	if len(arg) == 1 {
@@ -49,10 +54,29 @@ func (or OciRuntime) State(arg string) error {
 	if len(arg) == 1 {
 		return fmt.Errorf("must provide <container-id> args only")
 	}
-	state,err:=GetState(arg)
-	if err != nil{
-		return err
+	state, err := GetState(arg)
+	var itoa string
+	if err != nil {
+		state = &State{}
+		itoa = ""
+	} else {
+		itoa = strconv.Itoa(state.Pid)
 	}
-	fmt.Print(state)
+	data := [][]string{
+		{state.ID, string(state.Status), state.Bundle, itoa, state.Version},
+	}
+	table := tablewriter.NewWriter(os.Stdout)
+	table.SetHeader([]string{"ID", "Status", "Bundle", "PID", "Version"})
+	table.SetAutoWrapText(false)
+	table.SetAutoFormatHeaders(true)
+	table.SetCenterSeparator("")
+	table.SetColumnSeparator("")
+	table.SetRowSeparator("")
+	table.SetHeaderLine(false)
+	table.SetBorder(false)
+	table.SetTablePadding("\t") // pad with tabs
+	table.SetNoWhiteSpace(true)
+	table.AppendBulk(data) // Add Bulk Data
+	table.Render()
 	return nil
 }
