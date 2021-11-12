@@ -6,7 +6,6 @@
 * [Installation](#installation)
 * [Compile](#compile)
 * [Usage](#usage)
-* [Contribution](#Contribution)
 
 
 ## Installation
