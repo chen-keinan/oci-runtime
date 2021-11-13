@@ -28,7 +28,8 @@ type State struct {
 	// Status is the runtime status of the container.
 	Status ContainerState `json:"status"`
 	// Pid is the process ID for the container process.
-	Pid int `json:"pid,omitempty"`
+	Pid       int `json:"pid,omitempty"`
+	PidString string
 	// Bundle is the path to the container's bundle directory.
 	Bundle string `json:"bundle"`
 	// Annotations are key values associated with the container.

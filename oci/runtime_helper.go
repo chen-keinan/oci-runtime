@@ -7,16 +7,17 @@ import (
 	"github.com/chen-keinan/oci-runtime/oci_bundle"
 	"github.com/olekukonko/tablewriter"
 	"io/ioutil"
+	"log"
 	"math/rand"
 	"os"
 	"path"
 )
 
 func changeState(newStatus ContainerState, oldStatus []ContainerState, params ...string) error {
-	if len(params) < 1 {
-		return fmt.Errorf("failed to create container missing params")
-	}
 	cFolder, err := getContainerFolder()
+	if err != nil {
+		return err
+	}
 	filePath := path.Join(cFolder, params[0])
 	switch newStatus {
 	case StateCreating:
@@ -141,27 +142,37 @@ func getContainerFolder() (string, error) {
 	return containerFolder, err
 }
 
-func getState(containerID string) (*State, error) {
+func getState(containerID string) ([]*State, error) {
 	cf, err := getContainerFolder()
 	if err != nil {
 		return nil, err
 	}
+	if containerID == "all" {
+		return getAllStates(cf)
+	}
+	return GetStatesData(containerID, cf)
+}
+
+func GetStatesData(containerID string, cf string) ([]*State, error) {
 	fPath := path.Join(cf, containerID)
 	stData, err := oci_bundle.ReadFile(fPath)
 	if err != nil {
 		return nil, err
 	}
+	states := make([]*State, 0)
 	var st State
 	err = json.Unmarshal([]byte(stData), &st)
 	if err != nil {
 		return nil, err
 	}
-	return &st, nil
+	states = append(states, &st)
+	return states, nil
 }
 
-func printView(state *State, itoa string) {
-	data := [][]string{
-		{state.ID, string(state.Status), state.Bundle, itoa, state.Version},
+func printView(state []*State) {
+	data := make([][]string, 0)
+	for _, s := range state {
+		data = append(data, []string{s.ID, string(s.Status), s.Bundle, s.PidString, s.Version})
 	}
 	table := tablewriter.NewWriter(os.Stdout)
 	table.SetHeader([]string{"ID", "Status", "Bundle", "PID", "Version"})
@@ -176,4 +187,20 @@ func printView(state *State, itoa string) {
 	table.SetNoWhiteSpace(true)
 	table.AppendBulk(data) // Add Bulk Data
 	table.Render()
+}
+
+func getAllStates(cf string) ([]*State, error) {
+	files, err := ioutil.ReadDir(fmt.Sprintf("%s/", cf))
+	if err != nil {
+		log.Fatal(err)
+	}
+	allStates := make([]*State, 0)
+	for _, id := range files {
+		states, err := GetStatesData(id.Name(), cf)
+		if err != nil {
+			return nil, err
+		}
+		allStates = append(states, allStates...)
+	}
+	return allStates, nil
 }

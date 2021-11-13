@@ -21,7 +21,7 @@ func NewOciRuntime() Oci {
 }
 func (or OciRuntime) Create(args []string) error {
 	if len(args) != 2 {
-		return fmt.Errorf("must provide <container-id> <path-to-bundle> args only")
+		return fmt.Errorf("must provide <container-id> and <path-to-bundle> args ")
 	}
 	err := changeState(StateCreating, []ContainerState{}, args[0], args[1])
 	if err != nil {
@@ -32,34 +32,36 @@ func (or OciRuntime) Create(args []string) error {
 
 func (or OciRuntime) Start(arg string) error {
 	if len(arg) == 0 {
-		return fmt.Errorf("must provide <container-id> args only")
+		return fmt.Errorf("must provide <container-id> arg")
 	}
 	return changeState(StateRunning, []ContainerState{StateStopped, StateCreated}, arg)
 }
 func (or OciRuntime) Kill(arg string) error {
 	if len(arg) == 1 {
-		return fmt.Errorf("must provide <container-id> args only")
+		return fmt.Errorf("must provide <container-id> arg")
 	}
 	return changeState(StateStopped, []ContainerState{StateRunning}, arg)
 }
 func (or OciRuntime) Delete(arg string) error {
 	if len(arg) == 1 {
-		return fmt.Errorf("must provide <container-id> args only")
+		return fmt.Errorf("must provide <container-id> arg")
 	}
 	return changeState(StateDeleted, []ContainerState{StateStopped}, arg)
 }
 func (or OciRuntime) State(arg string) error {
 	if len(arg) == 1 {
-		return fmt.Errorf("must provide <container-id> args only")
+		return fmt.Errorf("must provide <container-id> arg")
 	}
 	state, err := getState(arg)
-	var pid string
-	if err != nil {
-		state = &State{}
-		pid = ""
+ 	if err != nil || len(state) == 0 {
+		state = []*State{{}}
+ 		printView(state)
+		return nil
 	} else {
-		pid = strconv.Itoa(state.Pid)
+		for _, st := range state {
+			st.PidString = strconv.Itoa(st.Pid)
+		}
 	}
-	printView(state, pid)
+	printView(state)
 	return nil
 }
