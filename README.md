@@ -1,6 +1,6 @@
 # oci-runtime
 
- Simple oci client how implement oci runtime lifecycle operations
+ Simple oci cli is a simple who implement oci runtime lifecycle operations [runtime lifecycle operations](https://github.com/opencontainers/runtime-spec/blob/main/runtime.md)
 
 
 * [Installation](#installation)
