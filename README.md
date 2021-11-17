@@ -4,7 +4,7 @@
 
 
 * [Installation](#installation)
-* [Compile](#compile)
+* [Operations](#operations)
 * [Usage](#usage)
 
 
@@ -14,7 +14,6 @@
 git clone git@github.com:chen-keinan/oci-runtime.git
 ```
 
-## Compile
 ```shell
 go build 
 ```
@@ -29,7 +28,7 @@ Copy bundle file to `~/bundles` folder example:
 ```shell
 cp redis.tgz ~/bundles/redis.tgz
 ```
-### Operations
+## Operations
 Create redis runtime (bundle must exist in bundle folder otherwise an error will be thrown)
 ```shell
 ./oci-runtime create <container id> <bundle name>
