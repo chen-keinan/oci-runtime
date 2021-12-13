@@ -8,9 +8,22 @@ import (
 )
 
 func TestChangeState(t *testing.T) {
-	err := changeState(StateCreating, []ContainerState{}, "1234", "../oci_bundle/fixture/redis")
-	if err != nil {
-		t.Error(err)
+	tests := []struct {
+		name      string
+		newState  ContainerState
+		prevState []ContainerState
+		params    []string
+		want      error
+	}{
+		{name: "change stat to create", newState: StateCreating, params: []string{"1234", "../oci_bundle/fixture/redis"}, want: nil},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := changeState(tt.newState, tt.prevState, tt.params...)
+			if tt.want != got {
+				t.Errorf("TestChangeState(),not expected value")
+			}
+		})
 	}
 }
 
