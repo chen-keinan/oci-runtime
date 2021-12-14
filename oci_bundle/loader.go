@@ -70,6 +70,10 @@ func ReadFile(filePath string) (string, error) {
 	return string(data), nil
 }
 func GetBundleFolder() (string, error) {
+	chome := os.Getenv("CONTAINER_HOME")
+	if len(chome) > 0 {
+		return chome, nil
+	}
 	dir, err := os.UserHomeDir()
 	if err != nil {
 		return "", err

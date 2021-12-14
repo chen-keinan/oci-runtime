@@ -128,6 +128,10 @@ func creatingContainer(params []string, err error, filePath string) error {
 }
 
 func getContainerFolder() (string, error) {
+	chome := os.Getenv("CONTAINER_HOME")
+	if len(chome) > 0 {
+		return chome, nil
+	}
 	dir, err := os.UserHomeDir()
 	if err != nil {
 		return "", err
