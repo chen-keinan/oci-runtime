@@ -53,9 +53,9 @@ func (or OciRuntime) State(arg string) error {
 		return fmt.Errorf("must provide <container-id> arg")
 	}
 	state, err := getState(arg)
- 	if err != nil || len(state) == 0 {
+	if err != nil || len(state) == 0 {
 		state = []*State{{}}
- 		printView(state)
+		printView(state)
 		return nil
 	} else {
 		for _, st := range state {

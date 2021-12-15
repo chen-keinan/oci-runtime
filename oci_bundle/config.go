@@ -2,7 +2,7 @@ package oci_bundle
 
 type Config struct {
 	Version string `json:"ociVersion"`
-	Root *Root `json:"root,omitempty"`
+	Root    *Root  `json:"root,omitempty"`
 }
 
 type Root struct {
@@ -11,4 +11,3 @@ type Root struct {
 	// Readonly makes the root filesystem for the container readonly before the process is executed.
 	Readonly bool `json:"readonly,omitempty"`
 }
-

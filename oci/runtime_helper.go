@@ -21,7 +21,7 @@ func changeState(newStatus ContainerState, oldStatus []ContainerState, params ..
 	filePath := path.Join(cFolder, params[0])
 	switch newStatus {
 	case StateCreating:
-		return creatingContainer(params, err, filePath)
+		return creatingContainer(params, filePath)
 	case StateRunning, StateStopped, StateCreated:
 		err = changeContainerStates(newStatus, oldStatus, filePath)
 		if err != nil {
@@ -97,10 +97,9 @@ func matchOldState(oldStatus []ContainerState, state string, st State) error {
 		}
 	}
 	return fmt.Errorf("container state %s cannot be changed from state %s", st.Status, oldStatus)
-	return nil
 }
 
-func creatingContainer(params []string, err error, filePath string) error {
+func creatingContainer(params []string, filePath string) error {
 	if len(params) < 2 {
 		return fmt.Errorf("failed to create container missing params")
 	}

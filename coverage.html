@@ -1,0 +1,476 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>oci: Go Coverage Report</title>
+		<style>
+			body {
+				background: black;
+				color: rgb(80, 80, 80);
+			}
+			body, pre, #legend span {
+				font-family: Menlo, monospace;
+				font-weight: bold;
+			}
+			#topbar {
+				background: black;
+				position: fixed;
+				top: 0; left: 0; right: 0;
+				height: 42px;
+				border-bottom: 1px solid rgb(80, 80, 80);
+			}
+			#content {
+				margin-top: 50px;
+			}
+			#nav, #legend {
+				float: left;
+				margin-left: 10px;
+			}
+			#legend {
+				margin-top: 12px;
+			}
+			#nav {
+				margin-top: 10px;
+			}
+			#legend span {
+				margin: 0 5px;
+			}
+			.cov0 { color: rgb(192, 0, 0) }
+.cov1 { color: rgb(128, 128, 128) }
+.cov2 { color: rgb(116, 140, 131) }
+.cov3 { color: rgb(104, 152, 134) }
+.cov4 { color: rgb(92, 164, 137) }
+.cov5 { color: rgb(80, 176, 140) }
+.cov6 { color: rgb(68, 188, 143) }
+.cov7 { color: rgb(56, 200, 146) }
+.cov8 { color: rgb(44, 212, 149) }
+.cov9 { color: rgb(32, 224, 152) }
+.cov10 { color: rgb(20, 236, 155) }
+
+		</style>
+	</head>
+	<body>
+		<div id="topbar">
+			<div id="nav">
+				<select id="files">
+				
+				<option value="file0">github.com/chen-keinan/oci-runtime/oci/runtime.go (0.0%)</option>
+				
+				<option value="file1">github.com/chen-keinan/oci-runtime/oci/runtime_helper.go (36.5%)</option>
+				
+				<option value="file2">github.com/chen-keinan/oci-runtime/oci_bundle/loader.go (54.2%)</option>
+				
+				</select>
+			</div>
+			<div id="legend">
+				<span>not tracked</span>
+			
+				<span class="cov0">not covered</span>
+				<span class="cov8">covered</span>
+			
+			</div>
+		</div>
+		<div id="content">
+		
+		<pre class="file" id="file0" style="display: none">package oci
+
+import (
+        "fmt"
+        "strconv"
+)
+
+type Oci interface {
+        State(args string) error
+        Create(args []string) error
+        Start(arg string) error
+        Kill(arg string) error
+        Delete(arg string) error
+}
+
+type OciRuntime struct {
+}
+
+func NewOciRuntime() Oci <span class="cov0" title="0">{
+        return &amp;OciRuntime{}
+}</span>
+func (or OciRuntime) Create(args []string) error <span class="cov0" title="0">{
+        if len(args) != 2 </span><span class="cov0" title="0">{
+                return fmt.Errorf("must provide &lt;container-id&gt; and &lt;path-to-bundle&gt; args ")
+        }</span>
+        <span class="cov0" title="0">err := changeState(StateCreating, []ContainerState{}, args[0], args[1])
+        if err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+        <span class="cov0" title="0">return changeState(StateCreated, []ContainerState{StateCreating}, args[0], args[1])</span>
+}
+
+func (or OciRuntime) Start(arg string) error <span class="cov0" title="0">{
+        if len(arg) == 0 </span><span class="cov0" title="0">{
+                return fmt.Errorf("must provide &lt;container-id&gt; arg")
+        }</span>
+        <span class="cov0" title="0">return changeState(StateRunning, []ContainerState{StateStopped, StateCreated}, arg)</span>
+}
+func (or OciRuntime) Kill(arg string) error <span class="cov0" title="0">{
+        if len(arg) == 1 </span><span class="cov0" title="0">{
+                return fmt.Errorf("must provide &lt;container-id&gt; arg")
+        }</span>
+        <span class="cov0" title="0">return changeState(StateStopped, []ContainerState{StateRunning}, arg)</span>
+}
+func (or OciRuntime) Delete(arg string) error <span class="cov0" title="0">{
+        if len(arg) == 1 </span><span class="cov0" title="0">{
+                return fmt.Errorf("must provide &lt;container-id&gt; arg")
+        }</span>
+        <span class="cov0" title="0">return changeState(StateDeleted, []ContainerState{StateStopped}, arg)</span>
+}
+func (or OciRuntime) State(arg string) error <span class="cov0" title="0">{
+        if len(arg) == 1 </span><span class="cov0" title="0">{
+                return fmt.Errorf("must provide &lt;container-id&gt; arg")
+        }</span>
+        <span class="cov0" title="0">state, err := getState(arg)
+        if err != nil || len(state) == 0 </span><span class="cov0" title="0">{
+                state = []*State{{}}
+                printView(state)
+                return nil
+        }</span> else<span class="cov0" title="0"> {
+                for _, st := range state </span><span class="cov0" title="0">{
+                        st.PidString = strconv.Itoa(st.Pid)
+                }</span>
+        }
+        <span class="cov0" title="0">printView(state)
+        return nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file1" style="display: none">package oci
+
+import (
+        "encoding/json"
+        "errors"
+        "fmt"
+        "github.com/chen-keinan/oci-runtime/oci_bundle"
+        "github.com/olekukonko/tablewriter"
+        "io/ioutil"
+        "log"
+        "math/rand"
+        "os"
+        "path"
+)
+
+func changeState(newStatus ContainerState, oldStatus []ContainerState, params ...string) error <span class="cov8" title="1">{
+        cFolder, err := getContainerFolder()
+        if err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+        <span class="cov8" title="1">filePath := path.Join(cFolder, params[0])
+        switch newStatus </span>{
+        case StateCreating:<span class="cov8" title="1">
+                return creatingContainer(params, filePath)</span>
+        case StateRunning, StateStopped, StateCreated:<span class="cov8" title="1">
+                err = changeContainerStates(newStatus, oldStatus, filePath)
+                if err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+        case StateDeleted:<span class="cov0" title="0">
+                err = deleteContainer(oldStatus, filePath)
+                if err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+        }
+        <span class="cov8" title="1">return nil</span>
+}
+
+func changeContainerStates(newStatus ContainerState, oldStatus []ContainerState, filePath string) error <span class="cov8" title="1">{
+        state, err := oci_bundle.ReadFile(filePath)
+        if err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+        <span class="cov8" title="1">var st State
+        err = json.Unmarshal([]byte(state), &amp;st)
+        if err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+        <span class="cov8" title="1">err = matchOldState(oldStatus, state, st)
+        if err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+        <span class="cov8" title="1">st.Status = newStatus
+        b, err := json.Marshal(&amp;st)
+        if err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+        <span class="cov8" title="1">err = ioutil.WriteFile(filePath, b, 0)
+        if err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+        <span class="cov8" title="1">return nil</span>
+}
+
+func deleteContainer(oldStatus []ContainerState, filePath string) error <span class="cov0" title="0">{
+        state, err := oci_bundle.ReadFile(filePath)
+        if err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("no such container with id : %s", filePath)
+        }</span>
+        <span class="cov0" title="0">var st State
+        err = json.Unmarshal([]byte(state), &amp;st)
+        if err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+        <span class="cov0" title="0">err = matchOldState(oldStatus, state, st)
+        if err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+        <span class="cov0" title="0">err = os.Remove(filePath)
+        if err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+        <span class="cov0" title="0">return nil</span>
+}
+
+func matchOldState(oldStatus []ContainerState, state string, st State) error <span class="cov8" title="1">{
+        if len(oldStatus) == 0 &amp;&amp; len(state) &gt; 0 </span><span class="cov0" title="0">{
+                return fmt.Errorf("container has already created")
+        }</span>
+        <span class="cov8" title="1">err := json.Unmarshal([]byte(state), &amp;st)
+        if err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+        <span class="cov8" title="1">for _, ost := range oldStatus </span><span class="cov8" title="1">{
+                if st.Status == ost </span><span class="cov8" title="1">{
+                        return nil
+                }</span>
+        }
+        <span class="cov0" title="0">return fmt.Errorf("container state %s cannot be changed from state %s", st.Status, oldStatus)</span>
+}
+
+func creatingContainer(params []string, filePath string) error <span class="cov8" title="1">{
+        if len(params) &lt; 2 </span><span class="cov0" title="0">{
+                return fmt.Errorf("failed to create container missing params")
+        }</span>
+        // check if container has been created already
+        <span class="cov8" title="1">if _, err := os.Stat(filePath); !errors.Is(err, os.ErrNotExist) </span><span class="cov0" title="0">{
+                return fmt.Errorf("failed to create container contianer file already exist")
+        }</span>
+        <span class="cov8" title="1">fileData, err := oci_bundle.LoadBundle(params[1])
+        if err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("failed to create container")
+        }</span>
+        <span class="cov8" title="1">if len(fileData) &lt; 1 </span><span class="cov0" title="0">{
+                return fmt.Errorf("failed to create container bundle file is missing")
+        }</span>
+        <span class="cov8" title="1">newSt := State{Version: "1.0", ID: params[0], Status: StateCreating, Bundle: params[1], Pid: rand.Int()}
+        b, err := json.Marshal(&amp;newSt)
+        if err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("failed to create container")
+        }</span>
+        <span class="cov8" title="1">err = ioutil.WriteFile(filePath, b, 0777)
+        if err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("failed to create container")
+        }</span>
+        <span class="cov8" title="1">return nil</span>
+}
+
+func getContainerFolder() (string, error) <span class="cov8" title="1">{
+        chome := os.Getenv("CONTAINER_HOME")
+        if len(chome) &gt; 0 </span><span class="cov8" title="1">{
+                return chome, nil
+        }</span>
+        <span class="cov8" title="1">dir, err := os.UserHomeDir()
+        if err != nil </span><span class="cov0" title="0">{
+                return "", err
+        }</span>
+        <span class="cov8" title="1">containerFolder := path.Join(dir, "containers")
+        if _, err := os.Stat(containerFolder); os.IsNotExist(err) </span><span class="cov0" title="0">{
+                err := os.Mkdir(containerFolder, os.ModePerm)
+                if err != nil </span><span class="cov0" title="0">{
+                        return "", err
+                }</span>
+        }
+        <span class="cov8" title="1">return containerFolder, err</span>
+}
+
+func getState(containerID string) ([]*State, error) <span class="cov0" title="0">{
+        cf, err := getContainerFolder()
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov0" title="0">if containerID == "all" </span><span class="cov0" title="0">{
+                return getAllStates(cf)
+        }</span>
+        <span class="cov0" title="0">return GetStatesData(containerID, cf)</span>
+}
+
+func GetStatesData(containerID string, cf string) ([]*State, error) <span class="cov0" title="0">{
+        fPath := path.Join(cf, containerID)
+        stData, err := oci_bundle.ReadFile(fPath)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov0" title="0">states := make([]*State, 0)
+        var st State
+        err = json.Unmarshal([]byte(stData), &amp;st)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov0" title="0">states = append(states, &amp;st)
+        return states, nil</span>
+}
+
+func printView(state []*State) <span class="cov0" title="0">{
+        data := make([][]string, 0)
+        for _, s := range state </span><span class="cov0" title="0">{
+                data = append(data, []string{s.ID, string(s.Status), s.Bundle, s.PidString, s.Version})
+        }</span>
+        <span class="cov0" title="0">table := tablewriter.NewWriter(os.Stdout)
+        table.SetHeader([]string{"ID", "Status", "Bundle", "PID", "Version"})
+        table.SetAutoWrapText(false)
+        table.SetAutoFormatHeaders(true)
+        table.SetCenterSeparator("")
+        table.SetColumnSeparator("")
+        table.SetRowSeparator("")
+        table.SetHeaderLine(false)
+        table.SetBorder(false)
+        table.SetTablePadding("\t") // pad with tabs
+        table.SetNoWhiteSpace(true)
+        table.AppendBulk(data) // Add Bulk Data
+        table.Render()</span>
+}
+
+func getAllStates(cf string) ([]*State, error) <span class="cov0" title="0">{
+        files, err := ioutil.ReadDir(fmt.Sprintf("%s/", cf))
+        if err != nil </span><span class="cov0" title="0">{
+                log.Fatal(err)
+        }</span>
+        <span class="cov0" title="0">allStates := make([]*State, 0)
+        for _, id := range files </span><span class="cov0" title="0">{
+                states, err := GetStatesData(id.Name(), cf)
+                if err != nil </span><span class="cov0" title="0">{
+                        return nil, err
+                }</span>
+                <span class="cov0" title="0">allStates = append(states, allStates...)</span>
+        }
+        <span class="cov0" title="0">return allStates, nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file2" style="display: none">package oci_bundle
+
+import (
+        "archive/tar"
+        "compress/gzip"
+        "fmt"
+        "io"
+        "io/ioutil"
+        "os"
+        "path"
+)
+
+func LoadBundle(bundleName string) ([]string, error) <span class="cov8" title="1">{
+        filesData := make([]string, 0)
+        bf, err := GetBundleFolder()
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov8" title="1">bandlePath := path.Join(bf, bundleName)
+        f, err := os.Open(fmt.Sprintf("%s.tgz", bandlePath))
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov8" title="1">defer func() </span><span class="cov8" title="1">{
+                if err = f.Close(); err != nil </span><span class="cov0" title="0">{
+                        fmt.Print(err.Error())
+                }</span>
+        }()
+
+        <span class="cov8" title="1">gzReader, err := GetReader(f)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov8" title="1">rc := tar.NewReader(gzReader)
+        for </span><span class="cov8" title="1">{
+                archiveEntry, err := rc.Next()
+                if err == io.EOF </span><span class="cov8" title="1">{
+                        break</span>
+                }
+                <span class="cov8" title="1">if archiveEntry.Name == "config.json" </span><span class="cov8" title="1">{
+                        data, err := ioutil.ReadAll(rc)
+                        if err != nil </span><span class="cov0" title="0">{
+                                return nil, err
+                        }</span>
+                        <span class="cov8" title="1">filesData = append(filesData, string(data))</span>
+                }
+        }
+        <span class="cov8" title="1">return filesData, nil</span>
+}
+
+//GetReader return gzip reader
+//accept io.reader
+func GetReader(reader io.Reader) (io.ReadCloser, error) <span class="cov8" title="1">{
+        fileReader, err := gzip.NewReader(reader)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov8" title="1">return fileReader, nil</span>
+}
+
+func ReadFile(filePath string) (string, error) <span class="cov0" title="0">{
+        f, err := os.Open(filePath)
+        if err != nil </span><span class="cov0" title="0">{
+                return "", err
+        }</span>
+        <span class="cov0" title="0">data, err := ioutil.ReadAll(f)
+        if err != nil </span><span class="cov0" title="0">{
+                return "", err
+        }</span>
+        <span class="cov0" title="0">return string(data), nil</span>
+}
+func GetBundleFolder() (string, error) <span class="cov8" title="1">{
+        chome := os.Getenv("CONTAINER_HOME")
+        if len(chome) &gt; 0 </span><span class="cov8" title="1">{
+                return chome, nil
+        }</span>
+        <span class="cov0" title="0">dir, err := os.UserHomeDir()
+        if err != nil </span><span class="cov0" title="0">{
+                return "", err
+        }</span>
+        <span class="cov0" title="0">bundleFolder := path.Join(dir, "bundles")
+        if _, err := os.Stat(bundleFolder); os.IsNotExist(err) </span><span class="cov0" title="0">{
+                err := os.Mkdir(bundleFolder, os.ModePerm)
+                if err != nil </span><span class="cov0" title="0">{
+                        return "", err
+                }</span>
+        }
+        <span class="cov0" title="0">return bundleFolder, err</span>
+}
+</pre>
+		
+		</div>
+	</body>
+	<script>
+	(function() {
+		var files = document.getElementById('files');
+		var visible;
+		files.addEventListener('change', onChange, false);
+		function select(part) {
+			if (visible)
+				visible.style.display = 'none';
+			visible = document.getElementById(part);
+			if (!visible)
+				return;
+			files.value = part;
+			visible.style.display = 'block';
+			location.hash = part;
+		}
+		function onChange() {
+			select(files.value);
+			window.scrollTo(0, 0);
+		}
+		if (location.hash != "") {
+			select(location.hash.substr(1));
+		}
+		if (!visible) {
+			select("file0");
+		}
+	})();
+	</script>
+</html>

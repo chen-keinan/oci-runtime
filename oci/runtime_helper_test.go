@@ -9,6 +9,14 @@ import (
 )
 
 func TestChangeState(t *testing.T) {
+	filePath, err := filepath.Abs("../oci_bundle/fixture/1234")
+	if err != nil {
+		t.Error(err)
+	}
+	err = os.Remove(filePath)
+	if err != nil {
+		t.Error(err)
+	}
 	tests := []struct {
 		name      string
 		newState  ContainerState
@@ -17,7 +25,8 @@ func TestChangeState(t *testing.T) {
 		params    []string
 		want      error
 	}{
-		{name: "change stat to create", newState: StateCreating, home: "../oci_bundle/fixture/", params: []string{"1234", "redis"}, want: nil},
+		{name: "change stat to create", newState: StateCreating, prevState: []ContainerState{}, home: "../oci_bundle/fixture/", params: []string{"1234", "redis"}, want: nil},
+		{name: "change stat to run", newState: StateRunning, prevState: []ContainerState{StateCreating}, home: "../oci_bundle/fixture/", params: []string{"1234", "redis"}, want: nil},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -35,6 +44,7 @@ func TestChangeState(t *testing.T) {
 }
 
 func TestGetContainerFolder(t *testing.T) {
+	os.Setenv("CONTAINER_HOME", "")
 	got, err := getContainerFolder()
 	if err != nil {
 		t.Error(err)
