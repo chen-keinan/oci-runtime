@@ -27,6 +27,8 @@ func TestChangeState(t *testing.T) {
 	}{
 		{name: "change stat to create", newState: StateCreating, prevState: []ContainerState{}, home: "../oci_bundle/fixture/", params: []string{"1234", "redis"}, want: nil},
 		{name: "change stat to run", newState: StateRunning, prevState: []ContainerState{StateCreating}, home: "../oci_bundle/fixture/", params: []string{"1234", "redis"}, want: nil},
+		{name: "change stat to stop", newState: StateStopped, prevState: []ContainerState{StateRunning}, home: "../oci_bundle/fixture/", params: []string{"1234", "redis"}, want: nil},
+		{name: "change stat to delete", newState: StateDeleted, prevState: []ContainerState{StateStopped}, home: "../oci_bundle/fixture/", params: []string{"1234", "redis"}, want: nil},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
