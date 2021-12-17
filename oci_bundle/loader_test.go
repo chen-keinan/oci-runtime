@@ -30,6 +30,7 @@ func TestReadFile(t *testing.T) {
 		wantErr  error
 	}{
 		{name: "readFile good path", relPath: "./fixture/config.json", wantData: "{\n  \"ociVersion\": \"1.0.0\",\n  \"root\": {\n    \"path\": \"path\",\n    \"redaonly\": true\n  }\n}\n", wantErr: nil},
+		{name: "readFile bad path", relPath: "./fixture/config.json1", wantData: "", wantErr: nil},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
