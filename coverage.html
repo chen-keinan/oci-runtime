@@ -57,9 +57,9 @@
 				
 				<option value="file0">github.com/chen-keinan/oci-runtime/oci/runtime.go (0.0%)</option>
 				
-				<option value="file1">github.com/chen-keinan/oci-runtime/oci/runtime_helper.go (36.5%)</option>
+				<option value="file1">github.com/chen-keinan/oci-runtime/oci/runtime_helper.go (46.0%)</option>
 				
-				<option value="file2">github.com/chen-keinan/oci-runtime/oci_bundle/loader.go (54.2%)</option>
+				<option value="file2">github.com/chen-keinan/oci-runtime/oci_bundle/loader.go (68.8%)</option>
 				
 				</select>
 			</div>
@@ -171,7 +171,7 @@ func changeState(newStatus ContainerState, oldStatus []ContainerState, params ..
                 if err != nil </span><span class="cov0" title="0">{
                         return err
                 }</span>
-        case StateDeleted:<span class="cov0" title="0">
+        case StateDeleted:<span class="cov8" title="1">
                 err = deleteContainer(oldStatus, filePath)
                 if err != nil </span><span class="cov0" title="0">{
                         return err
@@ -206,25 +206,25 @@ func changeContainerStates(newStatus ContainerState, oldStatus []ContainerState,
         <span class="cov8" title="1">return nil</span>
 }
 
-func deleteContainer(oldStatus []ContainerState, filePath string) error <span class="cov0" title="0">{
+func deleteContainer(oldStatus []ContainerState, filePath string) error <span class="cov8" title="1">{
         state, err := oci_bundle.ReadFile(filePath)
         if err != nil </span><span class="cov0" title="0">{
                 return fmt.Errorf("no such container with id : %s", filePath)
         }</span>
-        <span class="cov0" title="0">var st State
+        <span class="cov8" title="1">var st State
         err = json.Unmarshal([]byte(state), &amp;st)
         if err != nil </span><span class="cov0" title="0">{
                 return err
         }</span>
-        <span class="cov0" title="0">err = matchOldState(oldStatus, state, st)
+        <span class="cov8" title="1">err = matchOldState(oldStatus, state, st)
         if err != nil </span><span class="cov0" title="0">{
                 return err
         }</span>
-        <span class="cov0" title="0">err = os.Remove(filePath)
+        <span class="cov8" title="1">err = os.Remove(filePath)
         if err != nil </span><span class="cov0" title="0">{
                 return err
         }</span>
-        <span class="cov0" title="0">return nil</span>
+        <span class="cov8" title="1">return nil</span>
 }
 
 func matchOldState(oldStatus []ContainerState, state string, st State) error <span class="cov8" title="1">{
@@ -403,26 +403,26 @@ func LoadBundle(bundleName string) ([]string, error) <span class="cov8" title="1
         <span class="cov8" title="1">return filesData, nil</span>
 }
 
-//GetReader return gzip reader
-//accept io.reader
+//GetReader return gzip readerPath
+//accept io.readerPath
 func GetReader(reader io.Reader) (io.ReadCloser, error) <span class="cov8" title="1">{
         fileReader, err := gzip.NewReader(reader)
-        if err != nil </span><span class="cov0" title="0">{
+        if err != nil </span><span class="cov8" title="1">{
                 return nil, err
         }</span>
         <span class="cov8" title="1">return fileReader, nil</span>
 }
 
-func ReadFile(filePath string) (string, error) <span class="cov0" title="0">{
+func ReadFile(filePath string) (string, error) <span class="cov8" title="1">{
         f, err := os.Open(filePath)
+        if err != nil </span><span class="cov8" title="1">{
+                return "", err
+        }</span>
+        <span class="cov8" title="1">data, err := ioutil.ReadAll(f)
         if err != nil </span><span class="cov0" title="0">{
                 return "", err
         }</span>
-        <span class="cov0" title="0">data, err := ioutil.ReadAll(f)
-        if err != nil </span><span class="cov0" title="0">{
-                return "", err
-        }</span>
-        <span class="cov0" title="0">return string(data), nil</span>
+        <span class="cov8" title="1">return string(data), nil</span>
 }
 func GetBundleFolder() (string, error) <span class="cov8" title="1">{
         chome := os.Getenv("CONTAINER_HOME")

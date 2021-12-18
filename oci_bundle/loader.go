@@ -48,8 +48,8 @@ func LoadBundle(bundleName string) ([]string, error) {
 	return filesData, nil
 }
 
-//GetReader return gzip reader
-//accept io.reader
+//GetReader return gzip readerPath
+//accept io.readerPath
 func GetReader(reader io.Reader) (io.ReadCloser, error) {
 	fileReader, err := gzip.NewReader(reader)
 	if err != nil {

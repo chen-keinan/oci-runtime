@@ -13,9 +13,11 @@ func TestChangeState(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	err = os.Remove(filePath)
-	if err != nil {
-		t.Error(err)
+	if _, err := os.Stat(filePath); err == nil {
+		err = os.Remove(filePath)
+		if err != nil {
+			t.Error(err)
+		}
 	}
 	tests := []struct {
 		name      string
