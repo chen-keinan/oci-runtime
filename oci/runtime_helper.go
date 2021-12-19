@@ -101,7 +101,7 @@ func matchOldState(oldStatus []ContainerState, state string, st State) error {
 
 func creatingContainer(params []string, filePath string) error {
 	if len(params) < 2 {
-		return fmt.Errorf("failed to create container missing params")
+		return fmt.Errorf("failed to create container missing cID")
 	}
 	// check if container has been created already
 	if _, err := os.Stat(filePath); !errors.Is(err, os.ErrNotExist) {

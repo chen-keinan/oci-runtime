@@ -57,7 +57,7 @@
 				
 				<option value="file0">github.com/chen-keinan/oci-runtime/oci/runtime.go (0.0%)</option>
 				
-				<option value="file1">github.com/chen-keinan/oci-runtime/oci/runtime_helper.go (46.0%)</option>
+				<option value="file1">github.com/chen-keinan/oci-runtime/oci/runtime_helper.go (56.3%)</option>
 				
 				<option value="file2">github.com/chen-keinan/oci-runtime/oci_bundle/loader.go (68.8%)</option>
 				
@@ -245,7 +245,7 @@ func matchOldState(oldStatus []ContainerState, state string, st State) error <sp
 
 func creatingContainer(params []string, filePath string) error <span class="cov8" title="1">{
         if len(params) &lt; 2 </span><span class="cov0" title="0">{
-                return fmt.Errorf("failed to create container missing params")
+                return fmt.Errorf("failed to create container missing cID")
         }</span>
         // check if container has been created already
         <span class="cov8" title="1">if _, err := os.Stat(filePath); !errors.Is(err, os.ErrNotExist) </span><span class="cov0" title="0">{
@@ -289,30 +289,30 @@ func getContainerFolder() (string, error) <span class="cov8" title="1">{
         <span class="cov8" title="1">return containerFolder, err</span>
 }
 
-func getState(containerID string) ([]*State, error) <span class="cov0" title="0">{
+func getState(containerID string) ([]*State, error) <span class="cov8" title="1">{
         cf, err := getContainerFolder()
         if err != nil </span><span class="cov0" title="0">{
                 return nil, err
         }</span>
-        <span class="cov0" title="0">if containerID == "all" </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if containerID == "all" </span><span class="cov0" title="0">{
                 return getAllStates(cf)
         }</span>
-        <span class="cov0" title="0">return GetStatesData(containerID, cf)</span>
+        <span class="cov8" title="1">return GetStatesData(containerID, cf)</span>
 }
 
-func GetStatesData(containerID string, cf string) ([]*State, error) <span class="cov0" title="0">{
+func GetStatesData(containerID string, cf string) ([]*State, error) <span class="cov8" title="1">{
         fPath := path.Join(cf, containerID)
         stData, err := oci_bundle.ReadFile(fPath)
         if err != nil </span><span class="cov0" title="0">{
                 return nil, err
         }</span>
-        <span class="cov0" title="0">states := make([]*State, 0)
+        <span class="cov8" title="1">states := make([]*State, 0)
         var st State
         err = json.Unmarshal([]byte(stData), &amp;st)
         if err != nil </span><span class="cov0" title="0">{
                 return nil, err
         }</span>
-        <span class="cov0" title="0">states = append(states, &amp;st)
+        <span class="cov8" title="1">states = append(states, &amp;st)
         return states, nil</span>
 }
 
