@@ -107,3 +107,11 @@ func TestGetContainerFolder(t *testing.T) {
 		t.Error(fmt.Sprintf("TestGetContainerFolder want %s got %s", want, got))
 	}
 }
+
+func TestPrintView(t *testing.T) {
+	state := []*State{{Pid: 32342, ID: "1234", Status: "running", Bundle: "redis", Version: "1.0"}}
+	err := printView(state)
+	if err != nil {
+		t.Errorf("TestPrintView: should not throw an error")
+	}
+}
