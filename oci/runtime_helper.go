@@ -172,9 +172,9 @@ func GetStatesData(containerID string, cf string) ([]*State, error) {
 	return states, nil
 }
 
-func printView(state []*State) error{
+func printView(state []*State) bool {
 	if len(state) == 0 {
-		return fmt.Errorf("missing state")
+		return false
 	}
 	data := make([][]string, 0)
 	for _, s := range state {
@@ -193,7 +193,7 @@ func printView(state []*State) error{
 	table.SetNoWhiteSpace(true)
 	table.AppendBulk(data) // Add Bulk Data
 	table.Render()
-	return nil
+	return true
 }
 
 func getAllStates(cf string) ([]*State, error) {

@@ -109,9 +109,20 @@ func TestGetContainerFolder(t *testing.T) {
 }
 
 func TestPrintView(t *testing.T) {
-	state := []*State{{Pid: 32342, ID: "1234", Status: "running", Bundle: "redis", Version: "1.0"}}
-	err := printView(state)
-	if err != nil {
-		t.Errorf("TestPrintView: should not throw an error")
+	tests := []struct {
+		name  string
+		state []*State
+		want  bool
+	}{
+		{name: "print view with data", state: []*State{{Pid: 32342, ID: "1234", Status: "running", Bundle: "redis", Version: "1.0"}}, want: true},
+		{name: "print view with no data", state: []*State{}, want: false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := printView(tt.state)
+			if got != tt.want {
+				t.Errorf("TestPrintView,want %t got %t", tt.want, got)
+			}
+		})
 	}
 }
