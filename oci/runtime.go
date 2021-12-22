@@ -57,10 +57,9 @@ func (or OciRuntime) State(arg string) error {
 		state = []*State{{}}
 		printView(state)
 		return nil
-	} else {
-		for _, st := range state {
-			st.PidString = strconv.Itoa(st.Pid)
-		}
+	}
+	for _, st := range state {
+		st.PidString = strconv.Itoa(st.Pid)
 	}
 	printView(state)
 	return nil
