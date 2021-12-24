@@ -45,7 +45,7 @@ Start redis runtime (container must have created state otherwise an error will b
 ```
 example:
 ```shell
-/oci-runtime start 12345 
+/oci-runtime start 123456
 ```
 List redis runtime
 ```shell
@@ -53,11 +53,11 @@ List redis runtime
 ```
 example:
 ```shell
-/oci-runtime state 12345 
+/oci-runtime state 123456
 ```
 ```shell
 ID  	STATUS 	BUNDLE	        PID        	VERSION
-12345	created	redis 	5577006791947779410	    1.0
+123456	created	redis 	5577006791947779410	    1.0
 ```
 
 Stop redis runtime (container must have running state otherwise an error will be thrown)
@@ -66,7 +66,7 @@ Stop redis runtime (container must have running state otherwise an error will be
 ```
 example:
 ```shell
-/oci-runtime kill 12345 
+/oci-runtime kill 123456
 ```
 Delete redis runtime (container must have stopped state otherwise an error will be thrown)
 ```shell
@@ -74,5 +74,5 @@ Delete redis runtime (container must have stopped state otherwise an error will 
 ```
 example:
 ```shell
-/oci-runtime delete 12345 
+/oci-runtime delete 123456
 ```
